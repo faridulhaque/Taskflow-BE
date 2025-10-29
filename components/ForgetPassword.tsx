@@ -1,6 +1,7 @@
 "use client";
 import { Noto_Serif } from "next/font/google";
 import Image from "next/image";
+import Link from "next/link";
 import React from "react";
 const notoSerif = Noto_Serif({
   subsets: ["latin"],
@@ -26,7 +27,9 @@ function ForgetPassword() {
               d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18"
             />
           </svg>
-          <span className="text-sm font-medium">Back to login</span>
+          <Link href="/sign-in" className="text-sm font-medium">
+            Back to login
+          </Link>
         </button>
 
         <div className="flex flex-col justify-start space-y-4 mt-4 lg:mt-20">
