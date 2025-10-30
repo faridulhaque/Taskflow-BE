@@ -23,10 +23,9 @@ const register = async (req, res, next) => {
       });
 
       const savedUser = await newUser.save();
-      delete savedUser?.password;
       const token = jwt.sign({ id: savedUser._id }, process.env.JWT_SECRET);
 
-      res.status(200).json({ data: savedUser, token });
+      res.status(200).json({ data: null, token });
     }
   } catch (error) {
     next(error);
@@ -46,12 +45,8 @@ const login = async (req, res, next) => {
         return res.status(404).json({ message: "Password did not match" });
       } else {
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
-        const loggedInUser = {
-          email: user.email,
-          name: user.name,
-          _id: user._id,
-        };
-        res.status(200).json({ data: loggedInUser, token });
+
+        res.status(200).json({ data: null, token });
       }
     }
   } catch (error) {

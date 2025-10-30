@@ -1,10 +1,16 @@
 const TaskModel = require("../models/task.model");
 const moment = require("moment");
 
-const addTask = async (req, res, next) => {
+const addTask = async (user, req, res) => {
   try {
-    const newTask = new TaskModel(req.body);
-    const data = await newTask.save();
+    const body = {
+      ...req?.body,
+      email: user.email,
+      complete: true,
+    };
+    console.log("body", body);
+    // const newTask = new TaskModel(req.body);
+    // const data = await newTask.save();
     res.status(200).json(data);
   } catch (error) {
     next(error);
