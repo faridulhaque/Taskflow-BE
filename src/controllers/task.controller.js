@@ -1,17 +1,19 @@
 const TaskModel = require("../models/task.model");
 const moment = require("moment");
 
-const addTask = async (req, res, user) => {
+const addTask = async (req, res, next) => {
   try {
-    // const body = {
-    //   ...req?.body,
-    //   email: user.email,
-    //   complete: true,
-    // };
-    console.log("user", user);
-    console.log("req body", req.body);
-    // const newTask = new TaskModel(req.body);
-    // const data = await newTask.save();
+    const payload = {
+      email: req.user.email,
+      title: req.body.title,
+      description: "n/a",
+      time: req.body.time,
+      date: req.body.date,
+      complete: false,
+    };
+
+    const newTask = new TaskModel(payload);
+    const data = await newTask.save();
     res.status(200).json(data);
   } catch (error) {
     next(error);
@@ -20,7 +22,7 @@ const addTask = async (req, res, user) => {
 
 const getUpcomingTasks = async (req, res, next) => {
   try {
-    const email = req.params.email;
+    const email = req.user.email;
     const today = moment().format("YYYY-MM-DD");
 
     const tasks = await TaskModel.find({ email, date: { $gt: today } })
@@ -34,7 +36,7 @@ const getUpcomingTasks = async (req, res, next) => {
 
 const getTodayTasks = async (req, res, next) => {
   try {
-    const email = req.params.email;
+    const email = req.user.email;
 
     const today = moment().format("YYYY-MM-DD");
     const tasks = await TaskModel.find({ email, date: today }).sort({
@@ -66,8 +68,8 @@ const getArchiveTasks = async (req, res, next) => {
 const changeStatus = async (req, res, next) => {
   try {
     const id = req.params.id;
-    console.log("id", id);
-    const task = await TaskModel.findById(id);
+    const email = req.user.email;
+    const task = await TaskModel.findOne({ _id: id, email: email });
 
     const uTask = await TaskModel.findByIdAndUpdate(id, {
       complete: !task.complete,
@@ -81,6 +83,8 @@ const changeStatus = async (req, res, next) => {
 const deleteTask = async (req, res, next) => {
   try {
     const id = req.params.id;
+    const task = await TaskModel.findOne({ _id: id, email: email });
+
     const result = await TaskModel.findByIdAndDelete(id);
     res.status(200).json(result);
   } catch (error) {

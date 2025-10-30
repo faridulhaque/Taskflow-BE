@@ -20,14 +20,17 @@ const verifyJwt = async (req, res, next) => {
 
   const user = await UserModel.findOne({ _id: decoded.id });
   if (!user) res.status(500).json({ message: "Invalid Token" });
-  else next(req, res);
+  else {
+    req.user = user;
+    next();
+  }
 };
 
 router.post("/add", verifyJwt, addTask, commonError);
-router.get("/upcoming/:email", getUpcomingTasks, commonError);
-router.get("/today/:email", getTodayTasks, commonError);
-router.get("/previous/:email", getArchiveTasks, commonError);
-router.put("/status/:id", changeStatus, commonError);
-router.delete("/del/:id", deleteTask, commonError);
+router.get("/today", verifyJwt, getTodayTasks, commonError);
+router.get("/upcoming", verifyJwt, getUpcomingTasks, commonError);
+router.get("/previous", verifyJwt, getArchiveTasks, commonError);
+router.put("/status/:id", verifyJwt, changeStatus, commonError);
+router.delete("/del/:id", verifyJwt, deleteTask, commonError);
 
 module.exports = router;
