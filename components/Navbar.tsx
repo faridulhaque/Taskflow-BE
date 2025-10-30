@@ -9,6 +9,11 @@ function Navbar() {
   const isHome = pathname === "/" ? true : false;
   const isEntry = pathname === "/entry" ? true : false;
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    router.push("/sign-in");
+  };
+
   return (
     <div className="w-full h-20 shadow-xs shadow-[#3B82F6] flex items-center justify-between px-4 md:px-10">
       <div
@@ -37,6 +42,7 @@ function Navbar() {
 
         {(isHome || isEntry) && (
           <svg
+            onClick={handleLogout}
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"

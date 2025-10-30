@@ -1,6 +1,14 @@
+"use client";
+import { useGetAllTasksQuery } from "@/services/queries/othersApi";
 import React from "react";
 
 export default function TaskList() {
+  const {
+    data: tasks,
+
+    isLoading,
+  } = useGetAllTasksQuery("");
+
   return (
     <div className="w-full flex flex-col items-center px-4 space-y-10">
       <div className="relative w-full h-12 md:w-2/3 lg:w-2/5 mt-16">

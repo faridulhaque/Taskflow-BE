@@ -3,6 +3,14 @@ import { TaskPayload } from "../types";
 
 const othersApi = apiSlice.injectEndpoints({
   endpoints: (builder: any) => ({
+    getAllTasks: builder.query({
+      query: (email: string) => ({
+        url: `/task/all/${email}`,
+        method: "GET",
+      }),
+      providesTags: ["tasks"],
+    }),
+
     addTask: builder.mutation({
       query: (data: TaskPayload) => ({
         url: "/task/add",
@@ -63,4 +71,5 @@ export const {
   useGetArchiveTasksQuery,
   useDeleteTaskMutation,
   useChangeStatusMutation,
+  useGetAllTasksQuery,
 } = othersApi;

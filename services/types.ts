@@ -1,23 +1,24 @@
-export type OnboardingPayload = {
+export type signInPayload = {
   email: string;
   password: string;
+};
+
+export type signUpPayload = {
+  email: string;
+  password: string;
+  name: string;
 };
 export type TaskPayload = {
   _id?: string;
   email: string;
   title: string;
-  description: string;
   date: string;
   time: string;
   complete: boolean;
 };
 
-export type TTaskListComponent = {
-  data: TaskPayload[];
-  deleting: boolean;
-  changing: boolean;
-  deleteTask: (id: string) => void;
-  changeStatus: (id: string) => void;
-  email: string | null;
-  dataLoading: boolean;
+export type AddTaskType = {
+  title: string;
+  date: string;
+  time: string;
 };

@@ -1,5 +1,6 @@
 "use client";
 import { useRegisterMutation } from "@/services/queries/authApi";
+import { signUpPayload } from "@/services/types";
 import { Noto_Serif } from "next/font/google";
 import Image from "next/image";
 import Link from "next/link";
@@ -29,7 +30,7 @@ function SignUp() {
     if (password.length < 8)
       return toast.warn("Password should be at least 8 characters");
 
-    const payload = {
+    const payload: signUpPayload = {
       name,
       email,
       password,
@@ -43,8 +44,8 @@ function SignUp() {
     try {
       const result: any = await register({ email, password: password, name });
 
-      if (result?.data?.data?.email) {
-        localStorage.setItem("user", JSON.stringify(result?.data?.data));
+      if (result?.data?.token) {
+        localStorage.setItem("token", result.data.token);
         toast.success(`Sign Up Successful`);
         router.push("/");
       }

@@ -1,5 +1,6 @@
 "use client";
 import { useLoginMutation } from "@/services/queries/authApi";
+import { signInPayload } from "@/services/types";
 import { Noto_Serif } from "next/font/google";
 import Image from "next/image";
 import Link from "next/link";
@@ -24,7 +25,7 @@ function SignIn() {
     if (password.length < 8)
       return toast.warn("Password should be at least 8 characters");
 
-    const payload = {
+    const payload: signInPayload = {
       email,
       password,
     };
@@ -37,9 +38,10 @@ function SignIn() {
     try {
       const result: any = await login({ email, password: password, name });
 
-      if (result?.data?.data?.email) {
-        localStorage.setItem("user", JSON.stringify(result?.data?.data));
-        toast.success(`Sign Up Successful`);
+      if (result?.data?.token) {
+        localStorage.setItem("token", result.data.token);
+
+        toast.success(`Sign In Successful`);
         router.push("/");
       }
     } catch (error) {
@@ -91,7 +93,7 @@ function SignIn() {
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-10 text-[#6B6B6B] hover:text-[#3B82F6]"
+              className="cursor-pointer absolute right-3 top-10 text-[#6B6B6B] hover:text-[#3B82F6]"
             >
               {showPassword ? (
                 <svg
@@ -132,18 +134,21 @@ function SignIn() {
             </button>
           </div>
 
-          <div className="text-right text-[#F5F7FA]">
+          <div className="text-right text-[#F5F7FA] cursor-pointer">
             <Link href="/forgot-password" className="text-sm hover:underline">
               Forgot Password?
             </Link>
           </div>
           <button
-            type="button"
-            className="w-full h-12 bg-[#3B82F6] text-white rounded-md text-lg font-medium hover:bg-[#2563EB] transition"
+            type="submit"
+            className="cursor-pointer w-full h-12 bg-[#3B82F6] text-white rounded-md text-lg font-medium hover:bg-[#2563EB] transition"
           >
             Login
           </button>
-          <button className="w-full flex items-center justify-center h-12 rounded-md bg-white mt-4 space-x-3 hover:bg-gray-100 transition">
+          <button
+            type="button"
+            className="cursor-pointer w-full flex items-center justify-center h-12 rounded-md bg-white mt-4 space-x-3 hover:bg-gray-100 transition"
+          >
             <Image
               width={40}
               height={40}

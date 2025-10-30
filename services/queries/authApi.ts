@@ -1,10 +1,10 @@
 import { apiSlice } from "../apiSlice";
-import { OnboardingPayload } from "../types";
+import { signInPayload, signUpPayload } from "../types";
 
 const authApi = apiSlice.injectEndpoints({
   endpoints: (builder: any) => ({
     register: builder.mutation({
-      query: (data: OnboardingPayload) => ({
+      query: (data: signUpPayload) => ({
         url: "/auth/register",
         method: "POST",
         body: data,
@@ -12,7 +12,7 @@ const authApi = apiSlice.injectEndpoints({
     }),
 
     login: builder.mutation({
-      query: (data: OnboardingPayload) => ({
+      query: (data: signInPayload) => ({
         url: "/auth/login",
         method: "POST",
         body: data,
