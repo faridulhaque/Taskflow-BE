@@ -1,9 +1,54 @@
-import React from "react";
+"use client";
+import { useAddTaskMutation } from "@/services/queries/othersApi";
+import { TaskPayload } from "@/services/types";
+import React, { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 function Entry() {
+  const [email, setEmail] = useState("");
+  const [addData, { isLoading: isAddingTask }] = useAddTaskMutation<any>();
+
+  const handleSubmit = async (e: any) => {
+    e.preventDefault();
+    const title = e.currentTarget.title.value;
+    const description = "n/a";
+    const time = e.currentTarget.time.value;
+    const date = e.currentTarget.date.value;
+    const complete = false;
+
+    const payload: TaskPayload = {
+      email,
+      title,
+      description,
+      time,
+      date,
+      complete,
+    };
+
+    try {
+      const result: any = await addData(payload);
+      if (result?.data?._id) {
+        toast.success("Task added successfully");
+      }
+    } catch (error) {
+      toast.error("Failed to create a task");
+    }
+  };
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("user") || "null");
+
+    if (user) {
+      setEmail(user.email);
+    }
+  }, []);
+
   return (
     <div className="w-full flex justify-center px-4">
-      <form className="w-full md:w-2/3 lg:w-2/5 bg-white mt-16 md:mt-20 rounded-xl shadow-md py-10 px-6 md:px-10">
+      <form
+        onSubmit={handleSubmit}
+        className="w-full md:w-2/3 lg:w-2/5 bg-white mt-16 md:mt-20 rounded-xl shadow-md py-10 px-6 md:px-10"
+      >
         <h2 className="text-2xl md:text-3xl py-2 text-center text-black font-semibold">
           Add a new task
         </h2>

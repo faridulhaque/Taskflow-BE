@@ -1,15 +1,52 @@
 "use client";
+import { useLoginMutation } from "@/services/queries/authApi";
 import { Noto_Serif } from "next/font/google";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
+import { toast } from "react-toastify";
 const notoSerif = Noto_Serif({
   subsets: ["latin"],
   weight: ["400", "600", "700"],
 });
 
 function SignIn() {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
+  const [login] = useLoginMutation<any>();
+
+  const handleSubmit = async (e: any) => {
+    e.preventDefault();
+    const email = e.currentTarget.email.value as string;
+    const password = e.currentTarget.password.value as string;
+
+    if (password.length < 8)
+      return toast.warn("Password should be at least 8 characters");
+
+    const payload = {
+      email,
+      password,
+    };
+
+    for (const key in payload) {
+      const value = payload[key as keyof typeof payload];
+      if (!value) toast.warn(`${key} is required`);
+    }
+
+    try {
+      const result: any = await login({ email, password: password, name });
+
+      if (result?.data?.data?.email) {
+        localStorage.setItem("user", JSON.stringify(result?.data?.data));
+        toast.success(`Sign Up Successful`);
+        router.push("/");
+      }
+    } catch (error) {
+      toast.error(`Failed to Sign Up`);
+    }
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-16 w-11/12 mx-auto pt-20 pb-10">
       <div className="h-[500px] md:h-[600px]">
@@ -30,7 +67,10 @@ function SignIn() {
         <p className="pt-4 pb-8 text-center text-lg text-[#F8FAFC]">
           Enter your email and password to access your account
         </p>
-        <form className="mx-auto w-full max-w-md space-y-5">
+        <form
+          onSubmit={handleSubmit}
+          className="mx-auto w-full max-w-md space-y-5"
+        >
           <div>
             <label className="block text-white text-sm mb-2">Email</label>
             <input

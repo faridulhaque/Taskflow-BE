@@ -1,8 +1,11 @@
 "use client";
+import { useRegisterMutation } from "@/services/queries/authApi";
 import { Noto_Serif } from "next/font/google";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
+import { toast } from "react-toastify";
 
 const notoSerif = Noto_Serif({
   subsets: ["latin"],
@@ -12,6 +15,44 @@ const notoSerif = Noto_Serif({
 function SignUp() {
   const [showPass1, setShowPass1] = useState(false);
   const [showPass2, setShowPass2] = useState(false);
+  const [register] = useRegisterMutation<any>();
+  const router = useRouter();
+
+  const handleSubmit = async (e: any) => {
+    e.preventDefault();
+    const email = e.currentTarget.email.value as string;
+    const password = e.currentTarget.password.value as string;
+    const CPassword = e.currentTarget.confirmPassword.value as string;
+    const name = e.currentTarget.name.value as string;
+
+    if (password !== CPassword) return toast.warn("Both password must be same");
+    if (password.length < 8)
+      return toast.warn("Password should be at least 8 characters");
+
+    const payload = {
+      name,
+      email,
+      password,
+    };
+
+    for (const key in payload) {
+      const value = payload[key as keyof typeof payload];
+      if (!value) toast.warn(`${key} is required`);
+    }
+
+    try {
+      const result: any = await register({ email, password: password, name });
+
+      if (result?.data?.data?.email) {
+        localStorage.setItem("user", JSON.stringify(result?.data?.data));
+        toast.success(`Sign Up Successful`);
+        router.push("/");
+      }
+    } catch (error) {
+      toast.error(`Failed to Sign Up`);
+    }
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-16 w-11/12 mx-auto pt-10 pb-10">
       <div className="flex flex-col justify-center h-full">
@@ -23,7 +64,10 @@ function SignUp() {
         <p className="pt-4 pb-8 text-center text-lg text-[#F8FAFC]">
           Create your account to get started with TaskFlow
         </p>
-        <form className="mx-auto w-full max-w-md space-y-5">
+        <form
+          onSubmit={handleSubmit}
+          className="mx-auto w-full max-w-md space-y-5"
+        >
           <div>
             <label className="block text-white text-sm mb-2">Full Name</label>
             <input
@@ -54,7 +98,7 @@ function SignUp() {
             <button
               type="button"
               onClick={() => setShowPass1(!showPass1)}
-              className="absolute right-3 top-10 text-[#6B6B6B] hover:text-[#3B82F6]"
+              className="cursor-pointer absolute right-3 top-10 text-[#6B6B6B] hover:text-[#3B82F6]"
             >
               {showPass1 ? (
                 <svg
@@ -108,7 +152,7 @@ function SignUp() {
             <button
               type="button"
               onClick={() => setShowPass2(!showPass2)}
-              className="absolute right-3 top-10 text-[#6B6B6B] hover:text-[#3B82F6]"
+              className="cursor-pointer absolute right-3 top-10 text-[#6B6B6B] hover:text-[#3B82F6]"
             >
               {showPass2 ? (
                 <svg
@@ -150,12 +194,15 @@ function SignUp() {
           </div>
 
           <button
-            type="button"
-            className="w-full h-12 bg-[#3B82F6] text-white rounded-md text-lg font-medium hover:bg-[#2563EB] transition"
+            type="submit"
+            className="cursor-pointer w-full h-12 bg-[#3B82F6] text-white rounded-md text-lg font-medium hover:bg-[#2563EB] transition"
           >
             Sign Up
           </button>
-          <button className="w-full flex items-center justify-center h-12 rounded-md bg-white mt-4 space-x-3 hover:bg-gray-100 transition">
+          <button
+            type="button"
+            className="cursor-pointer w-full flex items-center justify-center h-12 rounded-md bg-white mt-4 space-x-3 hover:bg-gray-100 transition"
+          >
             <Image
               width={40}
               height={40}
