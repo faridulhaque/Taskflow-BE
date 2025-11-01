@@ -18,7 +18,8 @@ app.use(express.json());
 app.options(/.*/, cors(corsConfig));
 
 app.use("/auth", authRoutes);
-app.use("/task", taskRoutes);
+app.use("/tasks", taskRoutes);
+
 
 app.use("/", (req, res) => {
   res.send("Hello world");

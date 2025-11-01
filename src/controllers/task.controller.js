@@ -21,6 +21,7 @@ const addTask = async (req, res, next) => {
 };
 
 const getUpcomingTasks = async (req, res, next) => {
+  
   try {
     const email = req.user.email;
     const today = moment().format("YYYY-MM-DD");
@@ -50,7 +51,7 @@ const getTodayTasks = async (req, res, next) => {
 
 const getArchiveTasks = async (req, res, next) => {
   try {
-    const email = req.params.email;
+    const email = req.user.email;
     if (email) {
       const today = moment().format("YYYY-MM-DD");
 
@@ -83,6 +84,8 @@ const changeStatus = async (req, res, next) => {
 const deleteTask = async (req, res, next) => {
   try {
     const id = req.params.id;
+    const email = req.user.email;
+
     const task = await TaskModel.findOne({ _id: id, email: email });
 
     const result = await TaskModel.findByIdAndDelete(id);
