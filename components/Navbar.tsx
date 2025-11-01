@@ -35,7 +35,10 @@ function Navbar() {
 
       <div className="flex items-center space-x-4 md:space-x-8">
         {isHome && (
-          <button className="bg-[#3B82F6] hover:bg-[#2563EB] text-white font-medium py-1.5 md:py-2 px-4 md:px-6 rounded-md text-sm md:text-base transition cursor-pointer">
+          <button
+            onClick={() => router.push("/entry")}
+            className="bg-[#3B82F6] hover:bg-[#2563EB] text-white font-medium py-1.5 md:py-2 px-4 md:px-6 rounded-md text-sm md:text-base transition cursor-pointer"
+          >
             Add Task
           </button>
         )}

@@ -3,17 +3,9 @@ import { TaskPayload } from "../types";
 
 const othersApi = apiSlice.injectEndpoints({
   endpoints: (builder: any) => ({
-    getAllTasks: builder.query({
-      query: (email: string) => ({
-        url: `/task/all/${email}`,
-        method: "GET",
-      }),
-      providesTags: ["tasks"],
-    }),
-
     addTask: builder.mutation({
       query: (data: TaskPayload) => ({
-        url: "/task/add",
+        url: "/tasks/add",
         method: "POST",
         body: data,
       }),
@@ -21,24 +13,27 @@ const othersApi = apiSlice.injectEndpoints({
     }),
 
     getUpcomingTasks: builder.query({
-      query: (email: string) => ({
-        url: `/task/upcoming/${email}`,
-        method: "GET",
-      }),
+      query: () => {
+        console.log("Fetching upcoming tasks...");
+        return {
+          url: "/tasks/upcoming",
+          method: "GET",
+        };
+      },
       providesTags: ["tasks"],
     }),
 
     getTodayTask: builder.query({
-      query: (email: string) => ({
-        url: `/task/today/${email}`,
+      query: () => ({
+        url: `/tasks/today`,
         method: "GET",
       }),
       providesTags: ["tasks"],
     }),
 
     getArchiveTasks: builder.query({
-      query: (email: string) => ({
-        url: `/task/previous/${email}`,
+      query: () => ({
+        url: `/tasks/previous`,
         method: "GET",
       }),
       providesTags: ["tasks"],
@@ -46,7 +41,7 @@ const othersApi = apiSlice.injectEndpoints({
 
     changeStatus: builder.mutation({
       query: (id: string) => ({
-        url: `/task/status/${id}`,
+        url: `/tasks/status/${id}`,
         method: "PUT",
       }),
       invalidatesTags: ["tasks"],
@@ -55,13 +50,15 @@ const othersApi = apiSlice.injectEndpoints({
     deleteTask: builder.mutation({
       query: (id: string) => {
         return {
-          url: `/task/del/${id}`,
+          url: `/tasks/del/${id}`,
           method: "DELETE",
         };
       },
       invalidatesTags: ["tasks"],
     }),
   }),
+
+  overrideExisting: true,
 });
 
 export const {
@@ -71,5 +68,4 @@ export const {
   useGetArchiveTasksQuery,
   useDeleteTaskMutation,
   useChangeStatusMutation,
-  useGetAllTasksQuery,
 } = othersApi;

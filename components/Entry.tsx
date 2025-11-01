@@ -1,47 +1,39 @@
 "use client";
 import { useAddTaskMutation } from "@/services/queries/othersApi";
-import { TaskPayload } from "@/services/types";
+import { AddTaskType, TaskPayload } from "@/services/types";
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
 function Entry() {
-  const [email, setEmail] = useState("");
   const [addData, { isLoading: isAddingTask }] = useAddTaskMutation<any>();
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     const title = e.currentTarget.title.value;
-    const description = "n/a";
     const time = e.currentTarget.time.value;
     const date = e.currentTarget.date.value;
-    const complete = false;
 
-    const payload: TaskPayload = {
-      email,
+    const payload: AddTaskType = {
       title,
-      description,
       time,
       date,
-      complete,
     };
 
+    for (const key in payload) {
+      if (!payload[key as keyof typeof payload]) {
+        toast.error(`${key} is required`);
+      }
+    }
     try {
       const result: any = await addData(payload);
       if (result?.data?._id) {
         toast.success("Task added successfully");
       }
     } catch (error) {
+      console.log("error", error);
       toast.error("Failed to create a task");
     }
   };
-
-  useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user") || "null");
-
-    if (user) {
-      setEmail(user.email);
-    }
-  }, []);
 
   return (
     <div className="w-full flex justify-center px-4">
@@ -83,7 +75,7 @@ function Entry() {
             </div>
           </div>
 
-          <div>
+          {/* <div>
             <label className="block text-black text-sm mb-2">Description</label>
             <textarea
               name="description"
@@ -91,10 +83,11 @@ function Entry() {
               rows={4}
               className="w-full rounded-lg bg-[#F7F7F7] border border-[#BCBCBC] px-4 py-3 outline-0 text-black resize-none"
             ></textarea>
-          </div>
+          </div> */}
 
           <button
-            type="button"
+            type="submit"
+            disabled={isAddingTask}
             className="w-full h-12 bg-[#3B82F6] text-white rounded-md text-lg font-medium hover:bg-[#2563EB] transition cursor-pointer"
           >
             Add Task

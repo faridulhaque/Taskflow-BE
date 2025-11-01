@@ -9,7 +9,7 @@ export type signUpPayload = {
   name: string;
 };
 export type TaskPayload = {
-  _id?: string;
+  _id: string;
   email: string;
   title: string;
   date: string;
