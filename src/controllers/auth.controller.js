@@ -1,5 +1,8 @@
 const UserModel = require("../models/user.model");
 
+const fs = require("fs");
+const path = require("path");
+
 const bcrypt = require("bcryptjs");
 
 const jwt = require("jsonwebtoken");
@@ -54,4 +57,90 @@ const login = async (req, res, next) => {
   }
 };
 
-module.exports = { register, login };
+const forgotPassword = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    const user = await UserModel.findOne({ email });
+    if (!user?._id) {
+      return res.status(400).json({ message: "Email is not in use" });
+    }
+
+    const publicKey = process.env.MAILJET_PUBLIC_KEY;
+    const privateKey = process.env.MAILJET_PRIVATE_KEY;
+    const senderEmail = process.env.MAILJET_SENDER_EMAIL;
+    const auth = Buffer.from(`${publicKey}:${privateKey}`).toString("base64");
+
+    const code = Math.floor(1000 + Math.random() * 9000);
+
+    const filePath = path.join(process.cwd(), "reset_codes.json");
+    let existing = {};
+    if (fs.existsSync(filePath)) {
+      existing = JSON.parse(fs.readFileSync(filePath, "utf8"));
+    }
+    existing[email] = { code, userId: user._id, createdAt: new Date() };
+    fs.writeFileSync(filePath, JSON.stringify(existing, null, 2));
+
+    const response = await fetch("https://api.mailjet.com/v3.1/send", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Basic ${auth}`,
+      },
+      body: JSON.stringify({
+        Messages: [
+          {
+            From: { Email: senderEmail, Name: "TaskFlow Support" },
+            To: [{ Email: email, Name: user.name || "User" }],
+            Subject: "Your password reset code",
+            TextPart: `Your verification code is ${code}`,
+            HTMLPart: `<h3>Hello ${user.name || "User"},</h3>
+                       <p>Your password reset code is <b>${code}</b>.</p>
+                       <p>This code will expire soon.</p>`,
+          },
+        ],
+      }),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      res.status(200).json({ data: { email: user.email } });
+    } else {
+      res.status(500).json({ message: "Failed to send email", data });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+const recoverPassword = async (req, res, next) => {
+  try {
+    const { email, code, password } = req.body;
+
+    const filePath = path.join(process.cwd(), "reset_codes.json");
+    if (!fs.existsSync(filePath)) {
+      return res.status(400).json({ message: "No verification codes found" });
+    }
+
+    const existing = JSON.parse(fs.readFileSync(filePath, "utf8"));
+    const entry = existing[email];
+
+    if (!entry || entry.code !== Number(code)) {
+      return res.status(400).json({ message: "Invalid or expired code" });
+    }
+
+    const salt = await bcrypt.genSalt();
+    const passwordHash = await bcrypt.hash(password, salt);
+
+    await UserModel.updateOne({ email }, { password: passwordHash });
+
+    delete existing[email];
+    fs.writeFileSync(filePath, JSON.stringify(existing, null, 2));
+
+    res.status(200).json({ data: true });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { register, login, forgotPassword, recoverPassword };
