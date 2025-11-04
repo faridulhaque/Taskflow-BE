@@ -4,6 +4,7 @@ const {
   login,
   forgotPassword,
   recoverPassword,
+  googleOnboarding,
 } = require("../controllers/auth.controller");
 const { commonError } = require("../middleWares/commonError");
 
@@ -13,5 +14,6 @@ router.post("/register", register, commonError);
 router.post("/login", login, commonError);
 router.post("/forgot-password", forgotPassword, commonError);
 router.post("/recover-password", recoverPassword, commonError);
+router.post("/g-onboarding", googleOnboarding, commonError);
 
 module.exports = router;

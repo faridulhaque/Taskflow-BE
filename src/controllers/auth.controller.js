@@ -136,4 +136,38 @@ const recoverPassword = async (req, res, next) => {
   }
 };
 
-module.exports = { register, login, forgotPassword, recoverPassword };
+const googleOnboarding = async (req, res, next) => {
+  try {
+    const { name, email } = req.body;
+
+    const isExisted = await UserModel.findOne({ email });
+
+    if (isExisted?._id) {
+      const token = jwt.sign({ id: isExisted._id }, process.env.JWT_SECRET);
+
+      res.status(200).json({ data: { message: "Login successful" }, token });
+    } else {
+      const newUser = new UserModel({
+        name,
+        email,
+      });
+
+      const savedUser = await newUser.save();
+      const token = jwt.sign({ id: savedUser._id }, process.env.JWT_SECRET);
+
+      res
+        .status(200)
+        .json({ data: { message: "Registration successful" }, token });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = {
+  register,
+  login,
+  forgotPassword,
+  recoverPassword,
+  googleOnboarding,
+};
