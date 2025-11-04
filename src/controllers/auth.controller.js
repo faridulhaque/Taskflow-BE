@@ -58,6 +58,7 @@ const login = async (req, res, next) => {
 };
 
 const forgotPassword = async (req, res, next) => {
+  console.log("forgot password hit -------------------------------");
   try {
     const { email } = req.body;
     const user = await UserModel.findOne({ email });
@@ -72,13 +73,7 @@ const forgotPassword = async (req, res, next) => {
 
     const code = Math.floor(1000 + Math.random() * 9000);
 
-    const filePath = path.join(process.cwd(), "reset_codes.json");
-    let existing = {};
-    if (fs.existsSync(filePath)) {
-      existing = JSON.parse(fs.readFileSync(filePath, "utf8"));
-    }
-    existing[email] = { code, userId: user._id, createdAt: new Date() };
-    fs.writeFileSync(filePath, JSON.stringify(existing, null, 2));
+    await UserModel.updateOne({ email }, { passwordResetCode: code });
 
     const response = await fetch("https://api.mailjet.com/v3.1/send", {
       method: "POST",
@@ -111,31 +106,29 @@ const forgotPassword = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+  // return res.JSON({ data: {} });
 };
 
 const recoverPassword = async (req, res, next) => {
   try {
     const { email, code, password } = req.body;
 
-    const filePath = path.join(process.cwd(), "reset_codes.json");
-    if (!fs.existsSync(filePath)) {
-      return res.status(400).json({ message: "No verification codes found" });
-    }
+    const user = await UserModel.findOne({ email });
 
-    const existing = JSON.parse(fs.readFileSync(filePath, "utf8"));
-    const entry = existing[email];
+    if (!user || !user?.passwordResetCode)
+      return res.status(401).json({ data: false });
 
-    if (!entry || entry.code !== Number(code)) {
-      return res.status(400).json({ message: "Invalid or expired code" });
+    if (user.passwordResetCode !== code) {
+      return res.status(401).json({ data: false });
     }
 
     const salt = await bcrypt.genSalt();
     const passwordHash = await bcrypt.hash(password, salt);
 
-    await UserModel.updateOne({ email }, { password: passwordHash });
-
-    delete existing[email];
-    fs.writeFileSync(filePath, JSON.stringify(existing, null, 2));
+    await UserModel.updateOne(
+      { email },
+      { password: passwordHash, passwordResetCode: null }
+    );
 
     res.status(200).json({ data: true });
   } catch (error) {
