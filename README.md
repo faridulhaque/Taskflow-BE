@@ -55,7 +55,7 @@ Password: `test@faridmurshed.dev`
     npm install
 
 
-3. **Create a .env.local file and add the base url your Firebase config:**
+3. **Create a .env file and add the base url your Firebase config:**
 
 ```env
 MONGODB_URL=
@@ -72,9 +72,6 @@ MAILJET_SENDER_EMAIL=
     nodemon index.js
 
 
-5. **Open in browser**
-
-    http://localhost:3000
 
 🧑‍🤝‍🧑 Author
 
