@@ -1,15 +1,37 @@
+const express = require("express");
+const {
+  addTask,
+  getTodayTasks,
+  getArchiveTasks,
+  changeStatus,
+  deleteTask,
+  getUpcomingTasks,
+} = require("../controllers/task.controller");
+const { commonError } = require("../middleWares/commonError");
+const jwt = require("jsonwebtoken");
 
-const express = require('express');
-const { addTask, getAllTask, getTodayTasks, getArchiveTasks, changeStatus, deleteTask } = require('../controllers/task.controller');
-const { commonError } = require('../middleWares/commonError');
+const UserModel = require("../models/user.model");
 
-const router = express.Router()
+const router = express.Router();
 
-router.post('/add', addTask, commonError)
-router.get('/all/:email', getAllTask, commonError)
-router.get('/today/:email', getTodayTasks, commonError)
-router.get('/archive/:email', getArchiveTasks, commonError)
-router.put('/status/:id', changeStatus, commonError)
-router.delete('/del/:id', deleteTask, commonError)
+const verifyJwt = async (req, res, next) => {
+  console.log("verifying jwt");
+  const token = req.headers.authorization;
+  const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+  const user = await UserModel.findOne({ _id: decoded.id });
+  if (!user) res.status(500).json({ message: "Invalid Token" });
+  else {
+    req.user = user;
+    next();
+  }
+};
+
+router.get("/upcoming", verifyJwt, getUpcomingTasks, commonError);
+router.get("/previous", verifyJwt, getArchiveTasks, commonError);
+router.post("/add", verifyJwt, addTask, commonError);
+router.get("/today", verifyJwt, getTodayTasks, commonError);
+router.put("/status/:id", verifyJwt, changeStatus, commonError);
+router.delete("/del/:id", verifyJwt, deleteTask, commonError);
 
 module.exports = router;
