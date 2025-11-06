@@ -16,7 +16,8 @@ const router = express.Router();
 
 const verifyJwt = async (req, res, next) => {
   console.log("verifying jwt");
-  const token = req.headers.authorization;
+  const token = req?.headers?.authorization;
+  if (!token) res.status(401).json({ message: "No token provided" });
   const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
   const user = await UserModel.findOne({ _id: decoded.id });
