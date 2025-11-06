@@ -6,6 +6,7 @@ dotenv.config();
 
 const authRoutes = require("./src/routes/auth.routes.js");
 const taskRoutes = require("./src/routes/task.routes.js");
+const { commonError } = require("./src/middleWares/commonError.js");
 
 const app = express();
 const corsConfig = {
@@ -20,10 +21,13 @@ app.options(/.*/, cors(corsConfig));
 app.use("/auth", authRoutes);
 app.use("/tasks", taskRoutes);
 
-
-app.use("/", (req, res) => {
-  res.send("Hello world");
-});
+app.get(
+  "/health",
+  (req, res) => {
+    res.status(200).json({ message: "Hello World!" });
+  },
+  commonError
+);
 
 app.use((req, res) => {
   res.status(404).json({ message: "Route not found" });
