@@ -6,6 +6,8 @@ const {
   changeStatus,
   deleteTask,
   getUpcomingTasks,
+  updateTask,
+  getOneTask,
 } = require("../controllers/task.controller");
 const { commonError } = require("../middleWares/commonError");
 const jwt = require("jsonwebtoken");
@@ -34,5 +36,7 @@ router.post("/add", verifyJwt, addTask, commonError);
 router.get("/today", verifyJwt, getTodayTasks, commonError);
 router.put("/status/:id", verifyJwt, changeStatus, commonError);
 router.delete("/del/:id", verifyJwt, deleteTask, commonError);
+router.put("/update/:id", verifyJwt, updateTask, commonError);
+router.get("/one/:id", verifyJwt, getOneTask, commonError);
 
 module.exports = router;

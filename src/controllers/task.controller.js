@@ -21,7 +21,6 @@ const addTask = async (req, res, next) => {
 };
 
 const getUpcomingTasks = async (req, res, next) => {
-  
   try {
     const email = req.user.email;
     const today = moment().format("YYYY-MM-DD");
@@ -95,6 +94,41 @@ const deleteTask = async (req, res, next) => {
   }
 };
 
+const updateTask = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const email = req.user.email;
+
+    const task = await TaskModel.findOneAndUpdate(
+      { _id: id, email },
+      {
+        title: req.body.title,
+
+        date: req.body.date,
+        time: req.body.time,
+      },
+      { new: true }
+    );
+
+    res.status(200).json(task);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getOneTask = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const email = req.user.email;
+
+    const result = await TaskModel.findOne({ _id: id, email: email });
+
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   addTask,
   getUpcomingTasks,
@@ -102,4 +136,6 @@ module.exports = {
   getArchiveTasks,
   changeStatus,
   deleteTask,
+  updateTask,
+  getOneTask,
 };
