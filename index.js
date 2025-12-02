@@ -7,6 +7,7 @@ dotenv.config();
 const authRoutes = require("./src/routes/auth.routes.js");
 const taskRoutes = require("./src/routes/task.routes.js");
 const { commonError } = require("./src/middleWares/commonError.js");
+const UserModel = require("./src/models/user.model.js");
 
 const app = express();
 const corsConfig = {
@@ -23,8 +24,13 @@ app.use("/tasks", taskRoutes);
 
 app.get(
   "/health",
-  (req, res) => {
-    res.status(200).json({ message: "Hello World!" });
+  async (req, res) => {
+    const user = await UserModel.findOne(
+      { email: "test@faridmurshed.dev" },
+      { _id: 1, email: 1 }
+    );
+
+    res.status(200).json({ message: user.email });
   },
   commonError
 );

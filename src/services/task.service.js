@@ -42,6 +42,7 @@ const getTodayTasksService = async (req, res, next) => {
     const tasks = await TaskModel.find({ email, date: today }).sort({
       time: -1,
     });
+
     res.status(200).json(tasks);
   } catch (error) {
     next(error);
