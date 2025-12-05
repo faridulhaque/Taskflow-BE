@@ -25,12 +25,16 @@ app.use("/tasks", taskRoutes);
 app.get(
   "/health",
   async (req, res) => {
-    const user = await UserModel.findOne(
-      { email: "test@faridmurshed.dev" },
-      { _id: 1, email: 1 }
-    );
+    if (req?.query?.q && req.query.q === "db") {
+      const user = await UserModel.findOne(
+        { email: "test@faridmurshed.dev" },
+        { _id: 1, email: 1 }
+      );
 
-    res.status(200).json({ message: user.email });
+      res.status(200).json({ message: `Hello, ${user?.email}` });
+    } else {
+      res.status(200).json({ message: "Hello World!" });
+    }
   },
   commonError
 );
