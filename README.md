@@ -55,7 +55,7 @@ Password: `test@faridmurshed.dev`
     npm install
 
 
-3. **Create a .env file and add the base url your Firebase config:**
+3. **Create a .env file and add:**
 
 ```env
 MONGODB_URL=
