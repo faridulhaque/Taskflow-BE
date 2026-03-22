@@ -31,13 +31,13 @@ app.use((req, res) => {
 
 // connect with mongodb
 
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 1212;
 mongoose
   .connect(process.env.MONGODB_URL, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
   .then(() => {
-    app.listen(PORT, () => console.log(`server has been connected to ${PORT}`));
+    app.listen(PORT, '0.0.0.0', () => console.log(`server has been connected to ${PORT}`));
   })
   .catch((error) => console.log(error, `did not connect to ${PORT}`));
